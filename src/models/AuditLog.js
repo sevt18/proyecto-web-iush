@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true
     }
-  }, {
+  }, {  
     tableName: 'audit_logs',
     timestamps: false
   });

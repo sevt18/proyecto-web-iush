@@ -24,7 +24,7 @@ export default (sequelize, DataTypes) => {
   });
 
   User.associate = (models) => {
-    User.belongsTo(models.Role, { foreignKey: 'rolId' });
+    User.belongsTo(models.Role, { foreignKey: 'rolId' , as : 'role'});
     User.hasMany(models.Product, { foreignKey: 'productorId' });
     User.hasMany(models.Stage, { foreignKey: 'actorId' });
     User.hasMany(models.Review, { foreignKey: 'usuarioId' });
