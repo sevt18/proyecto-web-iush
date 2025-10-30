@@ -4,41 +4,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.DB_PORT || 3306;
 
-async function startServer() {
+async function starServer() {
   try {
-    // Verificar variables de entorno requeridas
-    const requiredEnvs = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'JWT_SECRET'];
-    for (const env of requiredEnvs) {
-      if (!process.env[env]) {
-        throw new Error(`Variable de entorno ${env} no está definida`);
-      }
-    }
-
-    // Intentar conectar a la base de datos
     await sequelize.authenticate();
-    console.log('✅ Conexión a la base de datos establecida con éxito.');
+    console.log('Conexión a la base de datos establecida con éxito.');
 
-    // Sincronizar modelos
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('📚 Modelos sincronizados con la base de datos (modo alter).');
-    } else {
-      await sequelize.sync();
-      console.log('📚 Modelos sincronizados con la base de datos (modo seguro).');
-    }
+    await sequelize.sync({ alter: true });
+    console.log('Modelos sincronizados con la base de datos.');
 
-    // Iniciar el servidor
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
-      console.log(`🔧 Ambiente: ${process.env.NODE_ENV}`);
+      console.log(`Servidor escuchando en el puerto ${PORT}`);
     });
   }
   catch (error) {
-    console.error('❌ Error al iniciar el servidor:', error);
-    process.exit(1);
+    console.error('No se pudo conectar a la base de datos:', error);
   }
+  
 }
 
-startServer();
+starServer();

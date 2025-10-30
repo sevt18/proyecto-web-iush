@@ -35,14 +35,14 @@ const searchProducts = async (req, res) => {
 // Crear reseña de producto
 const createReview = async (req, res) => {
     try {
-        const { productId, rating, comment } = req.body;
+        const { productId, puntuacion, comentario } = req.body;
         const userId = req.user.id;
 
         const review = await Review.create({
             product: productId,
             user: userId,
-            rating,
-            comment
+            puntuacion,
+            comentario
         });
 
         res.status(201).json(review);
