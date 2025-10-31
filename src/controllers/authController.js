@@ -1,9 +1,8 @@
 // controllers/auth.controller.js
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import Role from '../models/Role.js';
-import AuditLog from '../models/AuditLog.js'; // ajusta la ruta si tu archivo tiene otro nombre/ubicación
+import models from '../models/index.js';
+const { User, Role, AuditLog } = models;
 
 /**
  * Registrar usuario con rol 'visitante'
@@ -176,9 +175,9 @@ export const registerDistributor = async (req, res) => {
   }
 };
 
-/**
- * Login para usuarios (visitante, distribuidor, admin)
- */
+
+  //Login para usuarios (visitante, distribuidor, admin)
+ 
 export const login = async (req, res) => {
   try {
     const { correo, password } = req.body;

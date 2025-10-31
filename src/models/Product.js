@@ -21,6 +21,16 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
+    },
+    rating: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    isAvailable: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     tableName: 'products',
@@ -33,6 +43,7 @@ export default (sequelize, DataTypes) => {
     Product.hasMany(models.Stage, { foreignKey: 'productoId' });
     Product.hasMany(models.Inventory, { foreignKey: 'productoId' });
     Product.hasMany(models.Image, { foreignKey: 'productoId' });
+    Product.hasMany(models.Review, { foreignKey: 'productoId' });
   };
 
   return Product;

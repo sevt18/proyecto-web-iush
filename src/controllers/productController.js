@@ -1,7 +1,6 @@
 // Importamos modelos necesarios para productos
-import Product from "../models/Product.js";
-import Review from "../models/Review.js";
-import Inventory from "../models/Inventory.js";
+import models from "../models/index.js";
+const { Product, Review, Inventory } = models;
 import { Op } from "sequelize";
 
 // FUNCIÓN GETPRODUCTS: obtener todos los productos
@@ -20,18 +19,18 @@ export const getProducts = async (req, res) => {
 };
 
 // FUNCIÓN CREATEPRODUCT: crear nuevo producto
-// SQL equivalente: INSERT INTO products (name, description, price, category) VALUES (?, ?, ?, ?);
+
 export const createProduct = async (req, res) => {
     try {
         // EXTRACCIÓN DE DATOS: datos del producto del body
-        const { name, description, price, category } = req.body;
+        const { nombre, tipo, fechaProduccion, codigoTrazabilidad } = req.body;
 
         // CREACIÓN: nuevo producto en la base de datos
         const product = await Product.create({
-            name,
-            description,
-            price,
-            category
+            nombre,
+            tipo,
+            fechaProduccion,
+            codigoTrazabilidad
         });
 
         res.status(201).json(product);
@@ -41,16 +40,16 @@ export const createProduct = async (req, res) => {
 };
 
 // FUNCIÓN UPDATEPRODUCT: actualizar producto existente
-// SQL equivalente: UPDATE products SET name=?, description=?, price=? WHERE id=?;
+
 export const updateProduct = async (req, res) => {
     try {
         // EXTRACCIÓN DE PARÁMETROS Y DATOS
         const { id } = req.params;
-        const { name, description, price, category } = req.body;
+        const { nombre, tipo, fechaProduccion, codigoTrazabilidad } = req.body;
 
         // ACTUALIZACIÓN: modificar producto
         await Product.update(
-            { name, description, price, category },
+            { nombre, tipo, fechaProduccion, codigoTrazabilidad },
             { where: { id } }
         );
 
@@ -61,7 +60,7 @@ export const updateProduct = async (req, res) => {
 };
 
 // FUNCIÓN DELETEPRODUCT: eliminar producto
-// SQL equivalente: DELETE FROM products WHERE id=?;
+
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -75,30 +74,30 @@ export const deleteProduct = async (req, res) => {
 };
 
 // FUNCIÓN SEARCHPRODUCTS: buscar productos con filtros
-// SQL equivalente: SELECT * FROM products WHERE category = ? AND price BETWEEN ? AND ?;
+
 export const searchProducts = async (req, res) => {
     try {
         // EXTRACCIÓN DE QUERY PARAMS: filtros de búsqueda
-        const { query, category, minPrice, maxPrice } = req.query;
-        
+        const { query, tipo, minRating, maxRating } = req.query;
+
         // CONSTRUCCIÓN DE FILTROS
         const whereClause = {};
 
         if (query) {
             whereClause[Op.or] = [
-                { name: { [Op.iLike]: `%${query}%` } },
-                { description: { [Op.iLike]: `%${query}%` } }
+                { nombre: { [Op.iLike]: `%${query}%` } },
+                { tipo: { [Op.iLike]: `%${query}%` } }
             ];
         }
 
-        if (category) {
-            whereClause.category = category;
+        if (tipo) {
+            whereClause.tipo = tipo;
         }
 
-        if (minPrice || maxPrice) {
-            whereClause.price = {};
-            if (minPrice) whereClause.price[Op.gte] = parseFloat(minPrice);
-            if (maxPrice) whereClause.price[Op.lte] = parseFloat(maxPrice);
+        if (minRating || maxRating) {
+            whereClause.rating = {};
+            if (minRating) whereClause.rating[Op.gte] = parseFloat(minRating);
+            if (maxRating) whereClause.rating[Op.lte] = parseFloat(maxRating);
         }
 
         // CONSULTA CON FILTROS
@@ -106,7 +105,7 @@ export const searchProducts = async (req, res) => {
             where: whereClause,
             include: Review
         });
-            
+
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });

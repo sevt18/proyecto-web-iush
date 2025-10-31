@@ -1,10 +1,14 @@
-const Product = require('../models/Product');
-const Review = require('../models/Review');
+import Product from '../models/Product.js';
+import Review from '../models/Review.js';
+import User from '../models/User.js';
+import { Op } from 'sequelize';
 
 // Ver productos disponibles
 const getProducts = async (req, res) => {
     try {
-        const products = await Product.find({ isAvailable: true });
+        const products = await Product.findAll({
+            where: { isAvailable: true }
+        });
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener productos', error: error.message });
@@ -15,16 +19,14 @@ const getProducts = async (req, res) => {
 const searchProducts = async (req, res) => {
     try {
         const { query } = req.query;
-        const products = await Product.find({
-            $and: [
-                { isAvailable: true },
-                {
-                    $or: [
-                        { name: { $regex: query, $options: 'i' } },
-                        { description: { $regex: query, $options: 'i' } }
-                    ]
-                }
-            ]
+        const products = await Product.findAll({
+            where: {
+                isAvailable: true,
+                [Op.or]: [
+                    { nombre: { [Op.iLike]: `%${query}%` } },
+                    { tipo: { [Op.iLike]: `%${query}%` } }
+                ]
+            }
         });
         res.status(200).json(products);
     } catch (error) {
@@ -39,8 +41,8 @@ const createReview = async (req, res) => {
         const userId = req.user.id;
 
         const review = await Review.create({
-            product: productId,
-            user: userId,
+            productoId: productId,
+            usuarioId: userId,
             puntuacion,
             comentario
         });
@@ -55,16 +57,21 @@ const createReview = async (req, res) => {
 const getProductReviews = async (req, res) => {
     try {
         const { productId } = req.params;
-        const reviews = await Review.find({ product: productId })
-            .populate('user', 'username');
-        
+        const reviews = await Review.findAll({
+            where: { productoId: productId },
+            include: [{
+                model: User,
+                attributes: ['username']
+            }]
+        });
+
         res.status(200).json(reviews);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener reseñas', error: error.message });
     }
 };
 
-module.exports = {
+export {
     getProducts,
     searchProducts,
     createReview,

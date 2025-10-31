@@ -9,7 +9,11 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    cantidad: {
+    distributorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    quantity: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
@@ -20,6 +24,7 @@ export default (sequelize, DataTypes) => {
 
   Batch.associate = (models) => {
     Batch.belongsTo(models.Product, { foreignKey: 'productoId' });
+    Batch.belongsTo(models.User, { foreignKey: 'distributorId' });
   };
 
   return Batch;

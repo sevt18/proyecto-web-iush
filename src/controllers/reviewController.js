@@ -1,25 +1,24 @@
 // Importamos modelos necesarios para reseñas
-import Review from "../models/Review.js";
-import Product from "../models/Product.js";
-import User from "../models/User.js";
+import models from "../models/index.js";
+const { Review, Product, User } = models;
 
 // FUNCIÓN GETREVIEWS: obtener reseñas de un producto
-// SQL equivalente: SELECT * FROM reviews JOIN users ON reviews.userId = users.id WHERE productId = ?;
+
 export const getReviews = async (req, res) => {
     try {
         // EXTRACCIÓN DE PARÁMETROS: id del producto
         const { productId } = req.params;
-        
+
         // CONSULTA CON JOIN: incluye datos del usuario
         const reviews = await Review.findAll({
-            where: { productId },
+            where: { productoId: productId },
             include: [{
                 model: User,
                 attributes: ['nombre', 'email']
             }],
             order: [['createdAt', 'DESC']]
         });
-        
+
         res.json(reviews);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -27,7 +26,7 @@ export const getReviews = async (req, res) => {
 };
 
 // FUNCIÓN CREATEREVIEW: crear nueva reseña
-// SQL equivalente: INSERT INTO reviews (productId, userId, rating, comment) VALUES (?, ?, ?, ?);
+
 export const createReview = async (req, res) => {
     try {
         // EXTRACCIÓN DE DATOS: datos de la reseña
@@ -36,7 +35,7 @@ export const createReview = async (req, res) => {
 
         // VALIDACIÓN: verificar si ya existe una reseña
         const existingReview = await Review.findOne({
-            where: { productId, userId }
+            where: { productoId: productId, usuarioId: userId }
         });
 
         if (existingReview) {
@@ -45,18 +44,18 @@ export const createReview = async (req, res) => {
 
         // CREACIÓN: nueva reseña
         const review = await Review.create({
-            productId,
-            userId,
-            rating,
-            comment
+            productoId: productId,
+            usuarioId: userId,
+            puntuacion: rating,
+            comentario: comment
         });
 
         // ACTUALIZACIÓN: promedio de calificaciones del producto
         const reviews = await Review.findAll({
-            where: { productId }
+            where: { productoId: productId }
         });
 
-        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+        const avgRating = reviews.reduce((sum, r) => sum + r.puntuacion, 0) / reviews.length;
 
         await Product.update(
             { rating: avgRating },
@@ -70,7 +69,7 @@ export const createReview = async (req, res) => {
 };
 
 // FUNCIÓN UPDATEREVIEW: actualizar reseña existente
-// SQL equivalente: UPDATE reviews SET rating=?, comment=? WHERE id=? AND userId=?;
+
 export const updateReview = async (req, res) => {
     try {
         // EXTRACCIÓN DE DATOS
@@ -80,11 +79,11 @@ export const updateReview = async (req, res) => {
 
         // ACTUALIZACIÓN: solo si el usuario es el autor
         const updated = await Review.update(
-            { rating, comment },
-            { 
-                where: { 
+            { puntuacion: rating, comentario: comment },
+            {
+                where: {
                     id,
-                    userId // Asegura que solo el autor puede modificar
+                    usuarioId: userId // Asegura que solo el autor puede modificar
                 }
             }
         );
@@ -100,16 +99,16 @@ export const updateReview = async (req, res) => {
 };
 
 // FUNCIÓN DELETEREVIEW: eliminar reseña
-// SQL equivalente: DELETE FROM reviews WHERE id=? AND userId=?;
+
 export const deleteReview = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
 
         const deleted = await Review.destroy({
-            where: { 
+            where: {
                 id,
-                userId // Asegura que solo el autor puede eliminar
+                usuarioId: userId // Asegura que solo el autor puede eliminar
             }
         });
 

@@ -4,9 +4,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const PORT = process.env.DB_PORT || 3306;
+const PORT = process.env.PORT || 3306;
 
-async function starServer() {
+async function startServer() {
   try {
     await sequelize.authenticate();
     console.log('Conexión a la base de datos establecida con éxito.');
@@ -21,7 +21,7 @@ async function starServer() {
   catch (error) {
     console.error('No se pudo conectar a la base de datos:', error);
   }
-  
+
 }
 
-starServer();
+startServer();

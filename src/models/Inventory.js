@@ -5,12 +5,13 @@ export default (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    stock: {
+
+    distributorId: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    estado: {
-      type: DataTypes.STRING,
+    quantity: {
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {
@@ -20,6 +21,7 @@ export default (sequelize, DataTypes) => {
 
   Inventory.associate = (models) => {
     Inventory.belongsTo(models.Product, { foreignKey: 'productoId' });
+    Inventory.belongsTo(models.User, { foreignKey: 'distributorId' });
   };
 
   return Inventory;
